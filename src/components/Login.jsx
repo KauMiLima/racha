@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { Simbolo } from './Marca'
 
 // Mensagens de erro do Supabase traduzidas
 function traduzirErro(mensagem = '') {
@@ -7,7 +8,7 @@ function traduzirErro(mensagem = '') {
   if (mensagem.includes('already registered')) return 'Já existe uma conta com esse e-mail.'
   if (mensagem.includes('Email not confirmed'))
     return 'Confirme seu e-mail antes de entrar. Veja sua caixa de entrada.'
-  if (mensagem.includes('Password should be')) return 'A senha precisa ter pelo menos 6 caracteres.'
+  if (mensagem.includes('Password should be')) return 'A senha é muito curta ou fraca.'
   if (mensagem.includes('rate limit') || mensagem.includes('security purposes'))
     return 'Muitas tentativas seguidas. Espere um pouco e tente de novo.'
   if (mensagem.includes('Failed to fetch')) return 'Sem conexão. Verifique sua internet.'
@@ -38,6 +39,10 @@ export default function Login() {
     setErro('')
     setAviso('')
 
+    if (cadastro && senha.length < 8) {
+      setErro('A senha precisa ter pelo menos 8 caracteres.')
+      return
+    }
     if (cadastro && senha !== confirmar) {
       setErro('As senhas não conferem.')
       return
@@ -75,9 +80,8 @@ export default function Login() {
   return (
     <main className="auth">
       <div className="auth-topo">
-        <span className="auth-logo" aria-hidden="true">🏐</span>
-        <h1>Racha</h1>
-        <p className="info">Times equilibrados pro seu racha.</p>
+        <Simbolo tamanho={72} />
+        <h1 className="marca-nome">racha</h1>
       </div>
 
       <section className="card">
@@ -136,7 +140,7 @@ export default function Login() {
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
                 autoComplete={cadastro ? 'new-password' : 'current-password'}
-                minLength={6}
+                minLength={cadastro ? 8 : undefined}
                 required
               />
               <button
@@ -157,7 +161,7 @@ export default function Login() {
                 value={confirmar}
                 onChange={(e) => setConfirmar(e.target.value)}
                 autoComplete="new-password"
-                minLength={6}
+                minLength={8}
                 required
               />
             </label>

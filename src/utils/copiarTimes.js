@@ -1,12 +1,15 @@
+import { coleteDo } from './coletes'
+
 // Monta o texto dos times no formato do WhatsApp (*negrito*)
 export function textoDosTimes(times) {
   const blocos = times.map((time, i) => {
     const nomes = time.jogadores
       .map((j, n) => `${n + 1}. ${j.nome}${j.levantador ? ' (L)' : ''}`)
       .join('\n')
-    return `*Time ${i + 1}*\n${nomes}`
+    const colete = coleteDo(i)
+    return `${colete.emoji} *Time ${colete.nome}*\n${nomes}`
   })
-  return `🏐 *TIMES*\n\n${blocos.join('\n\n')}`
+  return `*Times do racha*\n\n${blocos.join('\n\n')}`
 }
 
 // Copia um texto para a área de transferência.

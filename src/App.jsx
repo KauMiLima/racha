@@ -10,8 +10,20 @@ function App() {
   useEffect(() => {
     if (!supabase) return
 
-    // Verifica se já existe alguém logado neste aparelho
-    supabase.auth.getSession().then(({ data }) => setSessao(data.session))
+    // Verifica se já existe alguém logado neste aparelho e confirma com o
+    // servidor que a sessão é válida (evita sessões falsas ou revogadas)
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (!data.session) return setSessao(null)
+
+      const { error } = await supabase.auth.getUser()
+      const recusada = error && (error.status === 401 || error.status === 403)
+      if (recusada) {
+        await supabase.auth.signOut({ scope: 'local' })
+        return setSessao(null)
+      }
+      // Sem internet o servidor não responde: mantém a sessão salva
+      setSessao(data.session)
+    })
 
     // Fica escutando login e logout para trocar de tela sozinho
     const { data } = supabase.auth.onAuthStateChange((_evento, novaSessao) => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { parseLista } from './utils/parseLista'
 import { balancearTimes } from './utils/balancear'
 import TimesEditaveis from './components/TimesEditaveis'
+import { Marca } from './components/Marca'
 import { textoDosTimes, copiarTexto } from './utils/copiarTimes'
 import {
   carregarNotas,
@@ -18,6 +19,7 @@ const NOTA_PADRAO = 5
 const SIMBOLO_MULHER = '♀\uFE0E' // \uFE0E evita que o celular mostre como emoji
 
 const chave = (nome) => nome.toLowerCase()
+const plural = (n, um, varios) => `${n} ${n === 1 ? um : varios}`
 
 // Duas regras são do mesmo par se envolvem as mesmas duas pessoas
 const mesmoPar = (r, s) =>
@@ -119,22 +121,25 @@ export default function TimesApp({ usuario, onSair }) {
     <main>
       <header className="topo">
         <div>
-          <h1>Racha</h1>
-          <p className="info">Olá, {usuario.user_metadata?.nome || usuario.email}</p>
+          <h1 className="titulo-app">
+            <Marca />
+          </h1>
         </div>
-        <button className="secundario sair" onClick={onSair}>
-          Sair
+        <button className="sair" onClick={onSair}>
+          Sair de {usuario.user_metadata?.nome || usuario.email}
         </button>
       </header>
 
       {/* 1. Colar a lista */}
       <section className="card">
+        <h2 className="passo">Lista do grupo
+        </h2>
         <textarea
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           placeholder="Cole aqui a lista do grupo..."
         />
-        <button className="primario" onClick={lerLista} disabled={!texto.trim()}>
+        <button className="escuro" onClick={lerLista} disabled={!texto.trim()}>
           Ler lista
         </button>
       </section>
@@ -143,9 +148,11 @@ export default function TimesApp({ usuario, onSair }) {
         <>
           {/* 2. Jogadores, marcações e notas */}
           <section className="card">
-            <h2>{nomes.length} jogadores</h2>
+            <h2 className="passo">Jogadores
+              <span className="contagem">{nomes.length}</span>
+            </h2>
             <p className="info">
-              Toque em L para levantador e em {SIMBOLO_MULHER} para mulher.
+              Nota de 1 a 10. L para levantador, {SIMBOLO_MULHER} para mulher.
             </p>
             <ul className="lista">
               {nomes.map((nome) => (
@@ -189,7 +196,8 @@ export default function TimesApp({ usuario, onSair }) {
 
           {/* 3. Regras */}
           <section className="card">
-            <h2>Regras</h2>
+            <h2 className="passo">Regras
+            </h2>
             <div className="regra-form">
               <select value={regraA} onChange={(e) => setRegraA(e.target.value)}>
                 <option value="">Jogador</option>
@@ -253,12 +261,12 @@ export default function TimesApp({ usuario, onSair }) {
               </select>
             </label>
             <p className="info">
-              Hoje: {levantadoresHoje} levantador(es) · {mulheresHoje} mulher(es)
+              {plural(levantadoresHoje, 'levantador', 'levantadores')} e{' '}
+              {plural(mulheresHoje, 'mulher', 'mulheres')} na lista.
             </p>
             {levantadoresHoje < numTimes && (
               <p className="aviso">
-                Só {levantadoresHoje} levantador(es) para {numTimes} times: algum time vai ficar
-                sem.
+                Faltam levantadores: com {numTimes} times, pelo menos um vai jogar sem.
               </p>
             )}
             <button className="primario" onClick={dividir} disabled={nomes.length < numTimes}>

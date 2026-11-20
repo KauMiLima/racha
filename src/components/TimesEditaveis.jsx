@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { resumirTime } from '../utils/balancear'
+import { coleteDo } from '../utils/coletes'
 
 // Mostra os times e deixa arrastar jogadores entre eles.
 // Funciona com mouse e com o dedo (pointer events).
@@ -96,20 +97,37 @@ export default function TimesEditaveis({ times, onChange, simboloMulher }) {
 
   return (
     <>
-      <p className="info">
-        Arraste pelo <span className="alca-exemplo">⋮⋮</span> para mudar alguém de time. Solte em
-        cima de outro jogador para trocar os dois. Diferença entre os times: <strong>{diferenca}</strong>
+      <div className="resultado-topo">
+        <h2 className="passo">Times</h2>
+        <p className="info">
+          {diferenca === 0
+            ? 'Empate exato nos pontos'
+            : `Diferença de ${diferenca} ${diferenca === 1 ? 'ponto' : 'pontos'}`}
+        </p>
+      </div>
+      <p className="info dica-arrasto">
+        Segure o <span className="alca-exemplo">⋮⋮</span> e arraste para mudar alguém de time.
       </p>
 
       {times.map((time, i) => {
         const ehAlvo = arrasto && arrasto.alvoTime === i && arrasto.origem !== i
+        const colete = coleteDo(i)
         return (
-          <section key={i} data-time={i} className={`card time ${ehAlvo ? 'alvo' : ''}`}>
-            <h2>Time {i + 1}</h2>
-            <p className="info">
-              {time.jogadores.length} jogadores · {time.mulheres} mulher(es) · total {time.total} ·
-              média {time.media}
-            </p>
+          <section
+            key={i}
+            data-time={i}
+            className={`time ${ehAlvo ? 'alvo' : ''}`}
+            style={{ '--cor': colete.cor }}
+          >
+            <header className="colete">
+              <h2>{colete.nome}</h2>
+              <p>
+                {time.jogadores.length} jogadores
+                <br />
+                média {String(time.media).replace('.', ',')}
+              </p>
+            </header>
+            <div className="time-corpo">
             <ul className="lista">
               {time.jogadores.map((j) => {
                 const saindo = arrasto?.nome === j.nome
@@ -136,6 +154,7 @@ export default function TimesEditaveis({ times, onChange, simboloMulher }) {
                 )
               })}
             </ul>
+            </div>
           </section>
         )
       })}
